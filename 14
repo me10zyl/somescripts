@@ -1,0 +1,25 @@
+#!/usr/bin/expect
+set ip 192.168.4.14
+set passwords {xxxxx 11223 444444}
+set index 0
+spawn ssh root@$ip
+expect {
+	"*(yes/no)?" {
+		send "yes\r"
+		exp_continue
+	}
+        "*try again." {
+                incr index
+                if {$index == [llength $passwords]} {
+                        error "所有密码都失败了"
+                }
+                exp_continue;
+        }
+        "*password:" {
+                send "[lindex $passwords $index]\r"
+                exp_continue;
+        }
+        "*#"
+}
+send_user "连接成功，${ip}的密码为[lindex $passwords $index]"
+interact
